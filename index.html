@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" class=""><head><script>window.livecodes = window.livecodes || {};</script><title>Untitled Project</title><meta name="title" content="Untitled Project"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="./style.css"><script src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js" async=""></script><script type="importmap">{
+  "imports": {}
+}</script></head><body>
+
+
+<meta charset="UTF-8">
+<title>My Uploads</title>
+
+<style>
+    body { background:#111; color:white; font-family:Arial; margin:0; }
+    #header { background:#222; padding:15px; font-size:26px; font-weight:bold; }
+    #content { padding:20px; }
+    .fileBox {
+        padding:15px;
+        background:#222;
+        border:1px solid #333;
+        margin-bottom:20px;
+        border-radius:8px;
+    }
+    audio, video {
+        width:100%;
+        margin-top:10px;
+        border-radius:8px;
+    }
+</style>
+
+
+
+
+<div id="header">My Uploads</div>
+
+<div id="content">
+    <p>Loading files…</p>
+</div>
+
+<script>
+// GitHub repo info (already filled in for you)
+const GITHUB_USERNAME = "sudoduck";
+const REPOSITORY_NAME = "sudoduck.github.io";
+const BRANCH = "main";
+
+// GitHub API URL for folder listing
+const apiURL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORY_NAME}/contents/uploads?ref=${BRANCH}`;
+
+async function loadUploads(){
+    const contentDiv = document.getElementById("content");
+
+    try {
+        const res = await fetch(apiURL);
+        if (!res.ok) {
+            contentDiv.innerHTML = "<p>Error loading uploads folder.</p>";
+            return;
+        }
+
+        const files = await res.json();
+
+        // Filter MP3/MP4 only
+        const mediaFiles = files.filter(f => 
+            f.name.toLowerCase().endsWith(".mp3") || 
+            f.name.toLowerCase().endsWith(".mp4")
+        );
+
+        if(mediaFiles.length === 0){
+            contentDiv.innerHTML = "<p>No uploads found.</p>";
+            return;
+        }
+
+        contentDiv.innerHTML = "";
+
+        mediaFiles.forEach(file => {
+            const rawURL = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPOSITORY_NAME}/${BRANCH}/uploads/${file.name}`;
+
+            const box = document.createElement("div");
+            box.className = "fileBox";
+            box.innerHTML = `<b>${file.name}</b><br>`;
+
+            if (file.name.endsWith(".mp3")){
+                box.innerHTML += `<audio controls src="${rawURL}"></audio>`;
+            } else {
+                box.innerHTML += `<video controls src="${rawURL}"></video>`;
+            }
+
+            contentDiv.appendChild(box);
+        });
+
+    } catch (e) {
+        document.getElementById("content").innerHTML = "<p>Error loading files.</p>";
+    }
+}
+
+loadUploads();
+</script>
+
+
+
+<script src="./script.js"></script></body></html>
